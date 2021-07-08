@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='specdash',
-      version='0.1.0',
+      version='0.2.0',
       description='Visualization and analysis tool for 1-dimensional astronomical spectra.',
       url='http://github.com/mtaghiza/specdash',
       author='Manuchehr Taghizadeh-Popp',
