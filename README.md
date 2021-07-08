@@ -7,3 +7,4 @@ For modeling, spectral regions can be interactively selected for fitting the con
 For reproducibility, all spectra and models can be downloaded, shared, and then uploaded again by other users.
 
 Author: `Manuchehr Taghizadeh-Popp`, Johns Hopkins University. Email: mtaghiza@jhu.edu  
+License: `Apache 2.0`
