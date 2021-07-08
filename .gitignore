@@ -22,4 +22,4 @@ docs/_build/
 /venv/
 config.py
 /examples
-/specdash/input/pfs/
+/specdash/input/pfs/pfs/
