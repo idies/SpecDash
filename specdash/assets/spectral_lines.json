@@ -1,0 +1,219 @@
+{
+    "Ly_alpha": {
+        "name": "Ly_alpha",
+        "label": "$Ly-\\alpha$",
+        "type": "ae",
+        "lambda_air": 1215.08,
+        "lambda": 1215.67
+    },
+    "NV": {
+        "name": "NV",
+        "label": "NV",
+        "type": "a",
+        "lambda_air": 1240.22,
+        "lambda": 1240.81
+    },
+    "OI": {
+        "name": "OI",
+        "label": "OI",
+        "type": "a",
+        "lambda_air": 1304.95,
+        "lambda": 1305.53
+    },
+    "CII": {
+        "name": "CII",
+        "label": "CII",
+        "type": "a",
+        "lambda_air": 2325.29,
+        "lambda": 2326.0
+    },
+    "SiIV+OIV": {
+        "name": "SiIV+OIV",
+        "label": "SiIV+OIV",
+        "type": "ae",
+        "lambda_air": 1399.22,
+        "lambda": 1399.8
+    },
+    "CIV": {
+        "name": "CIV",
+        "label": "CIV",
+        "type": "ae",
+        "lambda_air": 1548.9,
+        "lambda": 1549.48
+    },
+    "HeII": {
+        "name": "HeII",
+        "label": "HeII",
+        "type": "ae",
+        "lambda_air": 1639.81,
+        "lambda": 1640.4
+    },
+    "OIII": {
+        "name": "OIII",
+        "label": "OIII",
+        "type": "e",
+        "lambda_air": 1665.26,
+        "lambda": 1665.85
+    },
+    "AlIII": {
+        "name": "AlIII",
+        "label": "AlIII",
+        "type": "a",
+        "lambda_air": 1856.78,
+        "lambda": 1857.4
+    },
+    "CIII": {
+        "name": "CIII",
+        "label": "CIII",
+        "type": "e",
+        "lambda_air": 1908.1,
+        "lambda": 1908.73
+    },
+    "NeIV": {
+        "name": "NeIV",
+        "label": "NeIV",
+        "type": "e",
+        "lambda_air": 2438.76,
+        "lambda": 2439.5
+    },
+    "MgII": {
+        "name": "MgII",
+        "name": "MgII",
+        "type": "ae",
+        "lambda_air": 2798.29,
+        "lambda": 2799.12
+    },
+    "NeV": {
+        "name": "NeV",
+        "label": "NeV",
+        "type": "e",
+        "lambda_air": 3425.87,
+        "lambda": 3426.85
+    },
+    "[OII]": {
+        "name": "[OII]",
+        "label": "[OII]",
+        "type": "e",
+        "lambda_air": 3728.81,
+        "lambda": 3729.88
+    },
+    "Htheta": {
+        "name": "Htheta",
+        "label": "$H\\theta$",
+        "type": "ea",
+        "lambda_air": 3797.9,
+        "lambda": 3798.98
+    },
+    "Heta": {
+        "name": "Heta",
+        "label": "$H\\eta$",
+        "type": "ea",
+        "lambda_air": 3835.38,
+        "lambda": 3836.47
+    },
+    "CaII-K": {
+        "name": "CaII-K",
+        "label": "CaII-K",
+        "type": "a",
+        "lambda_air": 3933.66,
+        "lambda": 3934.78
+    },
+    "CaII-H": {
+        "name": "CaII-H",
+        "label": "CaII-H",
+        "type": "a",
+        "lambda_air": 3968.46,
+        "lambda": 3969.59
+    },
+    "Hdelta": {
+        "name": "Hdelta",
+        "label": "$H\\delta$",
+        "type": "ae",
+        "lambda_air": 4101.73,
+        "lambda": 4102.89
+    },
+    "G-band": {
+        "name": "G-band",
+        "label": "G-band",
+        "type": "a",
+        "lambda_air": 4304.4,
+        "lambda": 4305.61
+    },
+    "Hgamma": {
+        "name": "Hgamma",
+        "label": "$H\\gamma$",
+        "type": "ae",
+        "lambda_air": 4340.46,
+        "lambda": 4341.68
+    },
+    "Hbeta": {
+        "name": "Hbeta",
+        "label": "$H\\beta$",
+        "type": "ae",
+        "lambda_air": 4861.32,
+        "lambda": 4862.68
+    },
+    "[OIII]": {
+        "name": "[OIII]",
+        "label": "[OIII]",
+        "type": "e",
+        "lambda_air": 5006.84,
+        "lambda": 5008.24
+    },
+    "Mgb": {
+        "name": "Mgb",
+        "label": "Mgb",
+        "type": "a",
+        "lambda_air": 5175.26,
+        "lambda": 5176.7
+    },
+    "Na": {
+        "name": "Na",
+        "label": "Na",
+        "type": "a",
+        "lambda_air": 5893.96,
+        "lambda": 5895.6
+    },
+    "[OI]": {
+        "name": "[OI]",
+        "label": "[OI]",
+        "type": "e",
+        "lambda_air": 6300.3,
+        "lambda": 6302.05
+    },
+    "Halpha": {
+        "name": "Halpha",
+        "label": "$H\\alpha$",
+        "type": "ae",
+        "lambda_air": 6562.79,
+        "lambda": 6564.61
+    },
+    "[NII]": {
+        "name": "[NII]",
+        "label": "[NII]",
+        "type": "e",
+        "lambda_air": 6583.45,
+        "lambda": 6585.27
+    },
+    "Li": {
+        "name": "Li",
+        "label": "Li",
+        "type": "a",
+        "lambda_air": 6706.04,
+        "lambda": 6707.89
+    },
+    "[SII]": {
+        "name": "[SII]",
+        "label": "[SII]",
+        "type": "e",
+        "lambda_air": 6730.81,
+        "lambda": 6732.67
+    },
+    "CaII": {
+        "name": "CaII",
+        "label": "CaII",
+        "type": "a",
+        "lambda_air": 8662.13,
+        "lambda": 8664.52
+    }
+}

@@ -1,0 +1,11 @@
+[Unit]
+Description=Gunicorn instance to serve the specdash website based on python Dash
+After=network.target
+
+[Service]
+WorkingDirectory=/var/www/specdash/prod/specdash
+ExecStart=/bin/bash /var/www/specdash/prod/specdash/scripts/run-website.x
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
