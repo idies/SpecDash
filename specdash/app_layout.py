@@ -10,7 +10,7 @@ import dash_html_components as html
 import dash_table
 from dash_extensions import Download
 from textwrap import dedent as d
-from .spectral_lines import spectral_lines, sky_lines, artificial_lines
+from specdash.spectral_lines import spectral_lines, sky_lines, artificial_lines
 import json
 from specdash.models.enum_models import SpectrumType
 from specdash.smoothing.smoother import default_smoothing_kernels, SmoothingKernels
@@ -59,7 +59,7 @@ def get_navbar():
             dbc.NavItem(dbc.NavLink("About", href="#")),
             dbc.NavItem(dbc.NavLink("Docs", href="/docs")),
         ],
-        brand="Spectrum Viewer",
+        brand="SpecDash",
         brand_href="/",
         color="blue",
         dark=False
@@ -929,7 +929,7 @@ def load_app_layout(self): # self is passed as the Viewer class to fill out the 
 
             dbc.NavItem([
                 dbc.NavbarBrand(className="", href="/",style={'color':'white','height':''},children=[
-                    html.Div("Spectrum Viewer",style={'display':'inline'}),
+                    html.Div("SpecDash",style={'display':'inline'}),
                 ]),
             ], style={}),
             dbc.NavItem([
