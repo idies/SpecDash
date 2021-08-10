@@ -1,10 +1,9 @@
 from flask import Flask
 from flask_caching import Cache
 from flask_socketio import SocketIO
-from jupyter_dash import JupyterDash  # as JupyterDash
+from jupyter_dash import JupyterDash
 from specdash import base_logs_directory, external_stylesheets, external_scripts, port, do_log, max_num_traces
 import numpy as np
-import uuid
 from specdash import app_layout, callbacks
 from datetime import datetime
 import json
@@ -61,7 +60,7 @@ class Viewer():
         self.app = JupyterDash(__name__, external_stylesheets=external_stylesheets, external_scripts=external_scripts,
                                server=self.server, assets_ignore=assets_ignore, suppress_callback_exceptions=True)
         if not as_website:
-            self.socketio = SocketIO(self.server, async_mode="threading", logger=True, engineio_logger=True)
+            self.socketio = SocketIO(self.server, async_mode="threading", logger=False, engineio_logger=False)
 
         self.app.server.secret_key = 'SOME_KEY_STRING'
         self.app.title = "SpecDash"
