@@ -10,8 +10,6 @@ def get_dash_table(id_prefix, **extra_params):
         'id': id_prefix,
         'filter_action': "native",
         'sort_action': "native",
-        'filter_action': "native",
-        'sort_action': "native",
         'sort_mode': "multi",
         'css':[{"selector": ".column-header--delete svg","rule": 'display: "none"'},
                 {"selector": ".column-header--delete::before","rule": 'content: "X"'},

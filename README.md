@@ -6,5 +6,8 @@ Users can load and compare multiple spectra at the same time, overlay error bars
 For modeling, spectral regions can be interactively selected for fitting the continuum or spectral lines with several predefined models, and spectral smoothing can be performed with with several kernels.
 For reproducibility, all spectra and models can be downloaded, shared, and then uploaded again by other users.
 
-Author: `Manuchehr Taghizadeh-Popp`, Johns Hopkins University. Email: mtaghiza@jhu.edu  
+Author: `Manuchehr Taghizadeh-Popp`, Johns Hopkins University. Email: mtaghiza@jhu.edu
+
 License: `Apache 2.0`
+
+Documentation: http://specdash.idies.jhu.edu/specdash/static/docs/index.html

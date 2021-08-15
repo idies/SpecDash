@@ -277,7 +277,7 @@ def get_spectrum_page_layout(self):
                             persisted_props=["value"],
                         ),
                         html.Hr(),
-                        html.H6(["Toggle:"]),
+                        html.H6(["Display:"]),
                         dbc.Button('model', color="primary", outline=True,
                                    className="btn btn-sm m-1 specbutton",
                                    id='show_model_button'),
@@ -300,7 +300,6 @@ def get_spectrum_page_layout(self):
                                    id='show_zdist_button'),
                         html.Hr(),
                         html.Br(),
-                        html.P("Help: mtaghiza [at] jhu.edu"),
                         html.Br(),
                         # html.Div(dcc.Input(style={'display':'none'}, id='input-box', type='text', value="")),
                         html.Button('Submit', id='button', style={'display': 'none'}),
@@ -903,8 +902,20 @@ def get_documentation_page_layout(self):
     layout =  html.Div(children=[
         html.Br(),
         dbc.Container(children=[
-            html.H5("Currently under development."),
-            html.H6("Contact: Manuchehr Taghizadeh-Popp, mtaghiza [at] jhu.edu"),
+            html.H6("SpecDash"),
+            html.P("""
+                    SpecDash is an application for displaying and analyzing one-dimensional astronomical spectra, 
+                    available both as an interactive or programmable Jupyter notebook widget, as well as a stand-alone 
+                    website. Users can load and compare multiple spectra at the same time, overlay error bars, 
+                    spectral masks and lines, and show individual exposure frames, sky background and model spectra. 
+                    For modeling, spectral regions can be interactively selected for fitting the continuum or spectral 
+                    lines with several predefined models, and spectral smoothing can be performed with with several 
+                    kernels. For reproducibility, all spectra and models can be downloaded, shared, and then 
+                    uploaded again by other users.            
+            """),
+            html.Br(),
+            html.P("Contact: Manuchehr Taghizadeh-Popp, Johns Hopkins University. mtaghiza [at] jhu.edu"),
+            html.A(target="_docs", href="http://specdash.idies.jhu.edu/static/docs/index.html", children=["Documentation"]),
             #html.Iframe(src="https://docs.astropy.org/en/latest/", style={'width':"100%",'height':"95vh"})
         ])
     ])

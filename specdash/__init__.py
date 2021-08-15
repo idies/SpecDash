@@ -1,4 +1,4 @@
-from .config import CATALOGS, PORT, LOGS, DASH_TABLE_PAGE_SIZE, DEFAULT_WAVELENGTH_UNIT, DEFAULT_FLUX_UNIT, MAX_NUM_TRACES
+from specdash.config import CATALOGS, PORT, LOGS, DASH_TABLE_PAGE_SIZE, DEFAULT_WAVELENGTH_UNIT, DEFAULT_FLUX_UNIT, MAX_NUM_TRACES
 #from werkzeug.middleware.dispatcher import DispatcherMiddleware
 
 package_name = __name__
@@ -16,16 +16,6 @@ external_scripts = ['https://code.jquery.com/jquery-3.5.0.min.js', 'https://cdn.
 #external_scripts = []
 #server = flask.Flask(__name__) # define flask app.server
 #app = dash.Dash(__name__, external_stylesheets=external_stylesheets, external_scripts=external_scripts, server=server,  requests_pathname_prefix='/specdash/')
-
-a = """
-server = flask.Flask(__name__) # define flask app.server
-#app = dash.Dash(__name__, external_stylesheets=external_stylesheets, external_scripts=external_scripts, server=server)
-app = JupyterDash(__name__, external_stylesheets=external_stylesheets, external_scripts=external_scripts, server=server)
-app.server.secret_key = 'SOME_KEY_STRING'
-#socketio_app = SocketIO(app.server)
-socketio_app = None
-"""
-
 
 #app.scripts.append_script({"external_url": 'https://code.jquery.com/jquery-3.5.0.min.js'})
 #app.layout = html.Div([dcc.Interval(id='interval-component',interval=1*1000,n_intervals=0),html.Div(className='row', children=[html.Div(id='live-update-text')])])
