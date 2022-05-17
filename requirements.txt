@@ -7,15 +7,15 @@ dash-extensions
 dash-html-components
 dash-table
 Flask
-Flask-SocketIO<5
+Flask-SocketIO
 Flask-Caching
 ipython-genutils
 jupyter-dash
 jupyter-server-proxy
 jupyterlab
-jupyterlab-dash
 numpy
 requests
 scipy
+simple_websocket
 specutils
 Sphinx

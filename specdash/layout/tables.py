@@ -1,6 +1,6 @@
-import dash_table
-import dash_html_components as html
-import dash_core_components as dcc
+from dash import dash_table
+from dash import html
+from dash import dcc
 from specdash.config import DASH_TABLE_PAGE_SIZE
 
 def get_dash_table(id_prefix, **extra_params):

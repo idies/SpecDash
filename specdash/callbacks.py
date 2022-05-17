@@ -293,7 +293,7 @@ def load_callbacks(self): # self is passed as the Viewer class
                         Input("remove_trace_button", "n_clicks"),
                         Input('upload-data', 'contents'),
                         Input('trace_smooth_button', 'n_clicks'),
-                        Input('trace_smooth_substract_button', 'n_clicks'),
+                        Input('trace_smooth_subtract_button', 'n_clicks'),
                         Input('trace_unsmooth_button', 'n_clicks'),
                         Input('analize_line_selection_button', 'n_clicks'),
                         Input('wavelength-unit', 'value'),
@@ -322,7 +322,7 @@ def load_callbacks(self): # self is passed as the Viewer class
                         State('add_smoothing_as_trace_checklist', 'value'),
                         State('fitting-model-dropdown', 'value'),
                         State('median_filter_width', 'value'),
-                        State('add_fit_substracted_trace_checklist', 'value'),
+                        State('add_fit_subtracted_trace_checklist', 'value'),
                         State('remove_children_checklist', 'value'),
                         State("specid", "value"),
                         State("catalogs-dropdown", "value"),
@@ -333,7 +333,7 @@ def load_callbacks(self): # self is passed as the Viewer class
             state_list = state_list + [State('store', 'data')]
 
         def data_callback(pull_trigger_value,n_clicks_remove_trace_button, list_of_contents, n_clicks_smooth_button,
-                          n_clicks_smooth_substract_button, nclicks_analize_line_selection_button,
+                          n_clicks_smooth_subtract_button, nclicks_analize_line_selection_button,
                           n_clicks_unsmooth_button, wavelength_unit, flux_unit, nclicks_wavelength_binning_button,
                           n_clicks_model_fit_button, show_model_button, show_sky_button, show_visits_button,
                           save_trace_changes_button,
@@ -343,7 +343,7 @@ def load_callbacks(self): # self is passed as the Viewer class
                           session_id, dropdown_trace_names, wavelength_binning_window,
                           smoothing_kernel_name, smoothing_kernel_width, dropdown_for_region_values,
                           add_smoothing_as_trace_checklist, fitting_models, median_filter_width,
-                          add_fit_substracted_trace_checklist, remove_children_checklist, specid,
+                          add_fit_subtracted_trace_checklist, remove_children_checklist, specid,
                           catalog_dropdown_value, traces_table_data, data=None,
                           ):
 
@@ -354,7 +354,7 @@ def load_callbacks(self): # self is passed as the Viewer class
 
             try:
                 _data_dict = no_update
-                _graph_settings = self.build_graph_settings(axis_units_changed=False)
+                _graph_settings = self._build_graph_settings(axis_units_changed=False)
                 _info_message = no_update
                 trace_output = [no_update for i in range(max_num_traces)]
                 zdist_output = [no_update for i in range(max_num_traces)]
@@ -362,7 +362,7 @@ def load_callbacks(self): # self is passed as the Viewer class
                 if not self.as_website:
                     data_dict = self.app_data
                 else:
-                    data_dict = data if data is not None else self.build_app_data()
+                    data_dict = data if data is not None else self._build_app_data()
 
                 if self.as_website:
                     if len(data_dict['trace_store_mapping']) == 0:
@@ -397,7 +397,7 @@ def load_callbacks(self): # self is passed as the Viewer class
                         _data_dict = data_dict
                 elif task_name == 'wavelength-unit' or task_name == 'flux-unit':
                     self._rescale_axis(data_dict, to_wavelength_unit=wavelength_unit, to_flux_unit=flux_unit)
-                    _graph_settings = self.build_graph_settings(axis_units_changed=True)
+                    _graph_settings = self._build_graph_settings(axis_units_changed=True)
                     _data_dict = data_dict
 
                 elif task_name == 'wavelength_binning_button':
@@ -411,13 +411,13 @@ def load_callbacks(self): # self is passed as the Viewer class
                                         also_remove_children=also_remove_children)
                     _data_dict = data_dict
 
-                elif (task_name == "trace_smooth_button" or task_name == 'trace_smooth_substract_button') and len(
+                elif (task_name == "trace_smooth_button" or task_name == 'trace_smooth_subtract_button') and len(
                         dropdown_trace_names) > 0 and len(smoothing_kernel_name) > 0:
-                    do_substract = True if task_name == 'trace_smooth_substract_button' else False
+                    do_subtract = True if task_name == 'trace_smooth_subtract_button' else False
                     do_add = True if len(add_smoothing_as_trace_checklist) > 0 else False
                     smoother = self._get_smoother(smoothing_kernel_name, smoothing_kernel_width)
                     self._smooth_trace(dropdown_trace_names, data_dict, smoother, do_update_client=False,
-                                       do_substract=do_substract, as_new_trace=do_add)
+                                       do_subtract=do_subtract, as_new_trace=do_add)
                     _data_dict = data_dict
 
                 elif task_name == "trace_unsmooth_button" and len(dropdown_trace_names) > 0:
@@ -436,12 +436,12 @@ def load_callbacks(self): # self is passed as the Viewer class
                         pass
                     else:
                         # self._fit_model_to_flux(dropdown_trace_names, data_dict, fitting_models, selected_data, do_update_client=False)
-                        add_fit_substracted_trace = True if len(add_fit_substracted_trace_checklist) > 0 else False
+                        add_fit_subtracted_trace = True if len(add_fit_subtracted_trace_checklist) > 0 else False
                         model_fitters = [self._get_model_fitter(trace_name, data_dict, fitting_model, selected_data) for
                                          trace_name in dropdown_trace_names for fitting_model in fitting_models]
                         _ = self._fit_model_to_flux(dropdown_trace_names, data_dict, model_fitters, selected_data,
                                                     median_filter_width=median_filter_width, do_update_client=False,
-                                                    add_fit_substracted_trace=add_fit_substracted_trace)
+                                                    add_fit_subtracted_trace=add_fit_subtracted_trace)
                         _data_dict = data_dict
 
                 elif task_name == "show_model_button":

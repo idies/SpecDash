@@ -6,13 +6,11 @@ package_name = __name__
 port = PORT
 external_stylesheets = ['https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css']
 #external_stylesheets = []
-external_scripts = ['https://code.jquery.com/jquery-3.5.0.min.js', 'https://cdn.plot.ly/plotly-latest.min.js','https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js','https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML',
-                    {
-                        "src": "//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js",
-                        "integrity": "sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=",
-                        "crossorigin": "anonymous",
-                    }
-                    ]
+external_scripts = ['https://code.jquery.com/jquery-3.5.0.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.9.0/plotly.min.js',
+                    'https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML',
+                    'https://cdn.socket.io/4.5.0/socket.io.min.js']
 #external_scripts = []
 #server = flask.Flask(__name__) # define flask app.server
 #app = dash.Dash(__name__, external_stylesheets=external_stylesheets, external_scripts=external_scripts, server=server,  requests_pathname_prefix='/specdash/')

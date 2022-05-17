@@ -6,8 +6,25 @@ Users can load and compare multiple spectra at the same time, overlay error bars
 For modeling, spectral regions can be interactively selected for fitting the continuum or spectral lines with several predefined models, and spectral smoothing can be performed with with several kernels.
 For reproducibility, all spectra and models can be downloaded, shared, and then uploaded again by other users.
 
-Author: `Manuchehr Taghizadeh-Popp`, Johns Hopkins University. Email: mtaghiza@jhu.edu
+Author: Manuchehr Taghizadeh-Popp, Johns Hopkins University. Email: mtaghiza@jhu.edu
 
 License: `Apache 2.0`
 
-Documentation: http://specdash.idies.jhu.edu/specdash/static/docs/index.html
+Citation: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5083750.svg)](https://doi.org/10.5281/zenodo.5083750)
+
+Web interface: http://specdash.idies.jhu.edu/
+
+API Documentation: http://specdash.idies.jhu.edu/static/docs/index.html
+
+### Installation:  
+
+- Install dependencies:  
+``pip install -r requirements.txt``
+
+
+- Install SpecDash:  
+``pip install .``
+
+
+- If required package jupyter-dash was installed for the first time, then JupyterLab might need to be rebuilt:  
+ ``jupyter lab build``   (this requires nodejs: ``conda install nodejs``)

@@ -713,7 +713,7 @@ function build_figure_data(data, spectral_lines_switch, redshift, spectral_lines
 
             var add_error_bounds = do_show_error && trace_dropdown_names.includes(trace_name) && data.traces[trace_name].flux_error != null && data.traces[trace_name].flux_error.length>0
             //var fill_color = add_alpha_to_rgb(data.traces[trace_name].color,0.2)
-            if(data.traces[trace_name].is_visible==true || specmodels_dropdown.includes(trace_name) ){
+            if(data.traces[trace_name].is_visible==true || (specmodels_dropdown != null && specmodels_dropdown.includes(trace_name)) ){
 
                 if(add_error_bounds){
                     var flux_lower_bound = []
@@ -1280,7 +1280,16 @@ function build_traces_table(data){
             if(typeof trace.is_visible == 'string'){
                 trace.is_visible = (trace.is_visible == 'true')
             }
-            row = {'rank':rank, 'name':String(trace_name), 'is_visible':trace.is_visible, 'ancestors':String(trace.ancestors), 'linewidth':trace.linewidth,
+            if(trace.linewidth != null){
+                if(Number.isFinite(trace.linewidth))
+                    linewidth = trace.linewidth
+                else
+                    linewidth = trace.linewidth[0]
+            }else{
+                linewidth = Number.isFinite
+            }
+
+            row = {'rank':rank, 'name':String(trace_name), 'is_visible':trace.is_visible, 'ancestors':String(trace.ancestors), 'linewidth':linewidth,
                    'color':String(trace.color), 'type':String(trace.spectrum_type), 'catalog':String(trace.catalog)}
 
             table_rows.push(row)

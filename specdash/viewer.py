@@ -1,7 +1,8 @@
-from flask import Flask
+import flask
 from flask_caching import Cache
 from flask_socketio import SocketIO
 from jupyter_dash import JupyterDash
+from jupyter_dash.comms import _send_jupyter_config_comm_request
 from specdash import base_logs_directory, external_stylesheets, external_scripts, port, do_log, max_num_traces
 import numpy as np
 from specdash import app_layout, callbacks
@@ -21,22 +22,17 @@ from specutils import Spectrum1D, analysis, fitting, manipulation, SpectralRegio
 import uuid
 from dash import no_update
 from collections import OrderedDict
+from pathlib import Path
+import os
 
 process_manager = multiprocessing.Manager()
-styles = {
-    'pre': {
-        'border': 'thin lightgrey solid',
-        'overflowX': 'scroll'
-    }
-}
-
 
 class Viewer():
     """
     Class representing the spectrum viewer object.
     """
 
-    APP_DATA_KEYS = ["traces", "fitted_models", "selection", "smoothing_kernel_types", "fitting_model_types",
+    _APP_DATA_KEYS_ = ["traces", "fitted_models", "selection", "smoothing_kernel_types", "fitting_model_types",
                      "redshift_distributions", "metadata", "line_analysis", 'axis_units', "updates",
                      'trace_store_mapping', 'zdist_store_mapping']
 
@@ -51,14 +47,16 @@ class Viewer():
         self.as_website = as_website
 
         if not self.as_website:
+            _send_jupyter_config_comm_request()
             JupyterDash.infer_jupyter_proxy_config()
             assets_ignore = ""
         else:
             assets_ignore = "websocket.js"
 
-        self.server = Flask(__name__)  # define flask app.server
+        self.server = flask.Flask(__name__)  # define flask app.server
         self.app = JupyterDash(__name__, external_stylesheets=external_stylesheets, external_scripts=external_scripts,
                                server=self.server, assets_ignore=assets_ignore, suppress_callback_exceptions=True)
+
         if not as_website:
             self.socketio = SocketIO(self.server, async_mode="threading", logger=False, engineio_logger=False)
 
@@ -73,9 +71,9 @@ class Viewer():
         self.app.layout = self._get_app_layout
         session_id = str(uuid.uuid4())
         callbacks.load_callbacks(self)
-        self.initialize_api_endpoints()
+        self._initialize_api_endpoints()
 
-    def initialize_api_endpoints(self):
+    def _initialize_api_endpoints(self):
         @self.server.route('/api/health')
         def health():
             return {'is_healthy': True}
@@ -83,7 +81,7 @@ class Viewer():
     def _initialize_app_data(self):
         self.app_data = process_manager.dict()
         self.app_data_timestamp = process_manager.dict()
-        for key, value in Viewer.build_app_data().items():
+        for key, value in Viewer._build_app_data().items():
             self.app_data[key] = value
 
         self._initialize_updates(self.app_data)
@@ -188,8 +186,11 @@ class Viewer():
     def show_jupyter_app(self, debug=False, mode='jupyterlab'):
         """
         Opens the Spectrum Viewer inside Jupyter.
-        :param debug:
-        :param mode:
+        :param debug: Boolean, defining whether to include debug functionality.
+        :param mode: String defining the opening mode. If set to "jupyterlab", then the viewer opens on a separate tab
+        within JupyterLab. If set to "inline", the app will open under the notebook cell. If set to "external",
+        the app can be accessed by itself on a separate browser tab.
+
         :return:
         """
         if not self.as_website:
@@ -199,9 +200,9 @@ class Viewer():
                                 dev_tools_silence_routes_logging=True)  # dash + jupyterdash
 
     @staticmethod
-    def build_app_data():
+    def _build_app_data():
         app_data = {}
-        for key in Viewer.APP_DATA_KEYS:
+        for key in Viewer._APP_DATA_KEYS_:
             # app_data[key] = {}
             app_data[key] = OrderedDict()
 
@@ -216,7 +217,7 @@ class Viewer():
         return app_data
 
     @staticmethod
-    def build_graph_settings(axis_units_changed=False):
+    def _build_graph_settings(axis_units_changed=False):
         graph_settings = {'axis_units_changed': axis_units_changed}
         return graph_settings
 
@@ -239,7 +240,7 @@ class Viewer():
         self._load_from_specid([s for s in specid_list], [s for s in specid_list], wavelength_unit, flux_unit,
                                data_dict, catalog_name, do_update_client=False)
         if do_update_client:
-            self.update_client()
+            self._update_client()
 
     def _set_axis_units(self, data_dict, wavelength_unit, flux_unit):
         if wavelength_unit is not None and flux_unit is not None:
@@ -289,7 +290,7 @@ class Viewer():
         self._add_zdist_to_data(data_dict, added_zdists, do_update_client=False)
 
         if do_update_client:
-            self.update_client()
+            self._update_client()
 
     def _load_from_file(self, trace_name, catalog_name, decoded_bytes=None, file_path=None,
                         wavelength_unit=WavelengthUnit.ANGSTROM, flux_unit=FluxUnit.F_lambda):
@@ -331,7 +332,7 @@ class Viewer():
         self._add_trace_to_data(data_dict, rescaled_traces, do_update_client=False)
 
         if do_update_client:
-            self.update_client()
+            self._update_client()
 
     def _get_current_colors(self, application_data):
         current_traces_colors = [application_data['traces'][trace_name]['color'] for trace_name in
@@ -361,10 +362,10 @@ class Viewer():
 
     def _synch_data(self, base_data_dict, incomplete_data_dict, do_update_client=False):
         # self.write_info("inc0  start " + str(incomplete_data_dict) + " " + str(base_data_dict))
-        for key in Viewer.APP_DATA_KEYS:
+        for key in Viewer._APP_DATA_KEYS_:
             incomplete_data_dict[key] = base_data_dict[key]
         if do_update_client:
-            self.update_client()
+            self._update_client()
 
     def _add_trace_to_data(self, application_data, trace, do_update_client=False):
         if type(trace) != list:
@@ -385,7 +386,7 @@ class Viewer():
         self._set_trace_updates_info(application_data, added_trace_names=[trace.get('name') for trace in _traces])
 
         if do_update_client:
-            self.update_client()
+            self._update_client()
 
     def _add_zdist_to_data(self, application_data, redshift_distribution, do_update_client=True):
         if type(redshift_distribution) != list:
@@ -406,7 +407,7 @@ class Viewer():
         self._set_trace_updates_info(application_data, added_zdist_names=[zdist.get('name') for zdist in _zdists])
 
         if do_update_client:
-            self.update_client()
+            self._update_client()
 
     def _remove_traces(self, trace_names, data_dict, do_update_client=True, also_remove_children=False):
 
@@ -463,7 +464,7 @@ class Viewer():
         data_dict['fitted_models'] = fitted_models
 
         if do_update_client:
-            self.update_client()
+            self._update_client()
 
     def _toggle_derived_traces(self, derived_trace_type, ancestor_trace_names, data_dict, do_update_client=False):
         ancestor_trace_names = np.asarray(ancestor_trace_names)
@@ -487,7 +488,7 @@ class Viewer():
         self._set_trace_updates_info(data_dict, updated_trace_names=toggled_trace_names)
 
         if do_update_client:
-            self.update_client()
+            self._update_client()
 
     def _include_derived_traces(self, spectrum_types, ancestor_trace_names, data_dict, do_update_client=False):
         ancestor_trace_names = np.asarray(ancestor_trace_names)
@@ -501,9 +502,9 @@ class Viewer():
                     trace["is_visible"] = False
                 data_dict[derived_trace_name] = trace
         if do_update_client:
-            self.update_client()
+            self._update_client()
 
-    def write_info(self, info, file_endding=''):
+    def _write_info(self, info, file_endding=''):
         if do_log:
             if file_endding != '':
                 file_endding = '_' + file_endding
@@ -515,9 +516,9 @@ class Viewer():
             self.app_data_timestamp['timestamp'] = timestamp  # in sceconds
         else:
             self.app_data_timestamp['timestamp'] = datetime.timestamp(datetime.now())  # in sceconds
-        self.write_info("Updated timestamp to " + str(self.app_data_timestamp['timestamp']))
+        self._write_info("Updated timestamp to " + str(self.app_data_timestamp['timestamp']))
 
-    def update_client(self, component_names=[], timestamp=None):
+    def _update_client(self, component_names=[], timestamp=None):
         # self.__set_app_data_timestamp(timestamp)
         # https://stackoverflow.com/questions/28947581/how-to-convert-a-dictproxy-object-into-json-serializable-dict
         # self._send_websocket_message(json.dumps(self.app_data.copy()))
@@ -529,7 +530,7 @@ class Viewer():
 
     def get_data_dict(self, data):
         # return json.loads(data) if data is not None else self.build_app_data()
-        return data if data is not None else self.build_app_data()
+        return data if data is not None else self._build_app_data()
 
     def _unsmooth_trace(self, trace_names, application_data, do_update_client=True):
         for trace_name in trace_names:
@@ -547,7 +548,7 @@ class Viewer():
         self._set_trace_updates_info(application_data, updated_trace_names=[n for n in trace_names])
 
         if do_update_client:
-            self.update_client()
+            self._update_client()
 
     def _get_smoother(self, smoothing_kernel, kernel_width):
         if smoothing_kernel in default_smoothing_kernels:
@@ -557,7 +558,7 @@ class Viewer():
             smoother = self.smoother
         return smoother
 
-    def _smooth_trace(self, trace_names, application_data, smoother, do_update_client=True, do_substract=False,
+    def _smooth_trace(self, trace_names, application_data, smoother, do_update_client=True, do_subtract=False,
                       as_new_trace=False, new_trace_name=None):
         added_trace_names = []
         for trace_name in trace_names:
@@ -571,7 +572,7 @@ class Viewer():
 
                 smoothed_flux = smoother.get_smoothed_flux(flux)
 
-                if do_substract:
+                if do_subtract:
                     smoothed_flux = flux - smoothed_flux
 
                 if not as_new_trace:
@@ -610,7 +611,7 @@ class Viewer():
 
                 # if kernel is custom, add it to the data dict:
                 current_smoothing_kernels = application_data['smoothing_kernel_types']
-                self.write_info("current_smoothing_kernels1: " + str(current_smoothing_kernels))
+                self._write_info("current_smoothing_kernels1: " + str(current_smoothing_kernels))
                 if smoother.kernel_func_type not in current_smoothing_kernels:
                     current_smoothing_kernels.append(smoother.kernel_func_type)
                 # self.write_info("current_smoothing_kernels2: " + str(current_smoothing_kernels))
@@ -623,7 +624,7 @@ class Viewer():
             self._set_trace_updates_info(application_data, updated_trace_names=[n for n in trace_names if
                                                                                 n in application_data['traces']])
         if do_update_client:
-            self.update_client()
+            self._update_client()
 
     def _rescale_axis(self, application_data, to_wavelength_unit=WavelengthUnit.ANGSTROM,
                       to_flux_unit=FluxUnit.F_lambda, do_update_client=False):
@@ -640,7 +641,7 @@ class Viewer():
         self._set_trace_updates_info(application_data, updated_trace_names=[name for name in traces])
 
         if do_update_client:
-            self.update_client()
+            self._update_client()
 
     def _get_rescaled_axis_in_trace(self, trace, to_wavelength_unit=WavelengthUnit.ANGSTROM,
                                     to_flux_unit=FluxUnit.F_lambda):
@@ -729,7 +730,7 @@ class Viewer():
         self._add_trace_to_data(application_data, added_traces)
 
         if do_update_client:
-            self.update_client()
+            self._update_client()
 
     def _get_model_fitter(self, trace_name, application_data, fitting_model, selected_data):
 
@@ -753,7 +754,7 @@ class Viewer():
         return ModelFitter(model, fitter, model_type)
 
     def _fit_model_to_flux(self, trace_names, application_data, model_fitters, selected_data, median_filter_width=1,
-                           do_update_client=False, add_fit_substracted_trace=False):
+                           do_update_client=False, add_fit_subtracted_trace=False):
 
         # Documentation:
         # http://learn.astropy.org/rst-tutorials/User-Defined-Model.html
@@ -790,9 +791,9 @@ class Viewer():
                 model = model_fitter.model
                 fitting_model_type = model_fitter.model_type
 
-                self.write_info("x :" + str(x))
-                self.write_info("y :" + str(y))
-                self.write_info("err :" + str(y_err))
+                self._write_info("x :" + str(x))
+                self._write_info("y :" + str(y))
+                self._write_info("err :" + str(y_err))
                 fitted_model = fitter(model, x, y, weights=1. / y_err)
 
                 x_grid = np.linspace(min_x, max_x, 5 * len(x))
@@ -813,7 +814,7 @@ class Viewer():
 
                 fitted_traces.append(fitted_trace)
 
-                if add_fit_substracted_trace:
+                if add_fit_subtracted_trace:
                     fitted_trace_name = "fitsub_" + str(len(application_data['fitted_models']) + 1) + "_" + trace_name
                     ancestors = trace['ancestors'] + [trace_name]
 
@@ -868,7 +869,7 @@ class Viewer():
         application_data['fitted_models'] = fitted_models
 
         if do_update_client:
-            self.update_client()
+            self._update_client()
 
         return fitted_info_list
 
@@ -910,7 +911,7 @@ class Viewer():
         application_data["selection"] = selection
 
         if do_update_client:
-            self.update_client()
+            self._update_client()
 
     def _update_trace_properties(self, data_dict, properties_list, do_update_client=True, also_remove_children=False):
 
@@ -949,7 +950,7 @@ class Viewer():
                                      updated_trace_names=traces_in_properties)
 
         if do_update_client:
-            self.update_client()
+            self._update_client()
 
     def _get_line_analysis(self, trace_names, application_data, selected_data, continuum_trace, median_window=10,
                            as_new_trace=False, do_update_client=False):
@@ -1026,7 +1027,7 @@ class Viewer():
         self._add_trace_to_data(application_data, added_traces, do_update_client=False)
 
         if do_update_client:
-            self.update_client()
+            self._update_client()
 
     def _get_curve_mappingOLD(self, application_data):
         curve_mapping = {}
@@ -1047,18 +1048,18 @@ class Viewer():
         return curve_mapping
 
     ######################################################################################################################
-    ########  Trace manipulation/analysis functions fro execution within Jupyter  ##################################################################
+    ########  Trace manipulation/analysis functions for execution within Jupyter  ##################################################################
 
     def set_smoothing_kernel(self, kernel=SmoothingKernels.GAUSSIAN1D, kernel_width=20, custom_array_kernel=None,
                              custom_kernel_function=None, function_array_size=21):
         """
-        Sets the smoothing kernel from several kernel options
-        :param kernel:
-        :param kernel_width:
-        :param custom_array_kernel:
-        :param custom_kernel_function:
-        :param function_array_size:
-        :return:
+        Sets the smoothing kernel from several kernel options: predefined kernels listed  in the SmoothingKernels class,
+        custom list of integers defining a discrete kernel, or custom kernel function of class astropy.modeling.Fittable1DModel.
+        :param kernel: String defining kernel from SmoothingKernels class.
+        :param kernel_width: integer defining kernel width
+        :param custom_array_kernel: array or list of integers defining the custom kernel
+        :param custom_kernel_function: function of class astropy.modeling.Fittable1DModel
+        :param function_array_size: integer defining kernel width for custom kernel function.
         """
         self.smoother.set_smoothing_kernel(kernel, kernel_width, custom_array_kernel, custom_kernel_function,
                                            function_array_size)
@@ -1066,23 +1067,21 @@ class Viewer():
             smoothing_kernel_types = self.app_data.get("smoothing_kernel_types")
             smoothing_kernel_types.append(self.smoother.kernel_func_type)
             self.app_data["smoothing_kernel_types"] = smoothing_kernel_types
-            self.update_client()
+            self._update_client()
 
-    def smooth_trace(self, trace_name, do_substract=False):
+    def smooth_trace(self, trace_name, do_subtract=False):
         """
         Smooths a  trace after the kernel is set with 'set_smoothing_kernel'
         :param trace_name: name of trace
-        :param do_substract: True if the smoothed trace is substraced from the original trace. False otherwise.
-        :return:
+        :param do_subtract: True if the smoothed trace is subtracted from the original trace. False otherwise.
         """
         self._initialize_updates(self.app_data)
-        self._smooth_trace([trace_name], self.app_data, self.smoother, do_update_client=True, do_substract=do_substract)
+        self._smooth_trace([trace_name], self.app_data, self.smoother, do_update_client=True, do_subtract=do_subtract)
 
     def reset_smoothing(self, trace_name):
         """
-        Resets the smoothing previously done on trace
+        Resets the smoothing previously done on a trace
         :param trace_name: name of trace
-        :return:
         """
         self._initialize_updates(self.app_data)
         self._unsmooth_trace([trace_name], self.app_data, do_update_client=True)
@@ -1090,76 +1089,61 @@ class Viewer():
     def set_custom_model_fitter(self, model, fitter):
         """
         Sets the instances of a model and fitter in order to perform model fitting on a trace.
-        :param model: model instance
-        :param fitter: fitter instance
-        :return:
+        :param model: model instance from astropy.modeling,models
+        :param fitter: fitter instance from astropy.modeling,fitting
         """
         self.model_fitter = ModelFitter(model, fitter, FittingModels.CUSTOM)
         if self.model_fitter.model_type not in self.app_data["fitting_model_types"]:
             fitting_model_types = self.app_data.get("fitting_model_types")
             fitting_model_types.append(self.model_fitter.model_type)
             self.app_data["fitting_model_types"] = fitting_model_types
-            self.update_client()
+            self._update_client()
 
     def set_model_fitter(self, trace_name, fitting_model=FittingModels.GAUSSIAN_PLUS_LINEAR):
         """
         Sets the instances of a model and fitter in order to perform model fitting on a trace.
-        :param model: model instance
-        :param fitter: fitter instance
-        :return:
+        :param trace_name: name of trace
+        :param fitting_model: model defined by the members of class FittingModels
         """
         self.model_fitter = self._get_model_fitter(trace_name, self.app_data, fitting_model, self.app_data['selection'])
 
-    def fit_model(self, trace_name, median_filter_width=1, add_fit_substracted_trace=False):
+    def fit_model(self, trace_name, median_filter_width=1, add_fit_subtracted_trace=False):
         """
-
-        Parameters
-        ----------
-        trace_name
-        median_filter_width
-        add_fit_substracted_trace
-
-        Returns
-        -------
-
+        Fits select flux data points with model.
+        :param trace_name:
+        :param median_filter_width: width of median filter applied to data points before fitting. This Functionality not there yet.
+        :param add_fit_subtracted_trace: Boolean, defining whether to add the fit-subtracted data points as an
+        additional trace.
         """
         self._initialize_updates(self.app_data)
         fitting_info_list = self._fit_model_to_flux([trace_name], self.app_data, [self.model_fitter],
                                                     self.app_data['selection'], median_filter_width=median_filter_width,
                                                     do_update_client=True,
-                                                    add_fit_substracted_trace=add_fit_substracted_trace)
+                                                    add_fit_subtracted_trace=add_fit_subtracted_trace)
         return fitting_info_list[0]
 
     def get_data_selection(self):
         """
-
-        Returns
-        -------
-
+        Returns array of data points that were selected with the graphical interface,
         """
         return self.app_data.get("selection")
 
     def set_data_selection(self, trace_name, selection_indices=[]):
         """
-
-        Parameters
-        ----------
-        trace_name
-        selection_indices
-
-        Returns
-        -------
-
+        Sets the instance object with particular data points being selected.
+        :param trace_name: name (string) of trace whose data points are being selected.
+        :param selection_indices: list of integers defining the indexes of th epoints being selected.
         """
         self._set_selection(trace_name, self.app_data, selection_indices, do_update_client=True)
 
     def add_spectrum(self, spectrum, is_visible=True):
         """
-
-        Parameters
+        Adds a spectrum to the viewer.
         ----------
-        spectrum
-        is_visible
+        spectrum: `specdash.models.data_models.Spectrum` or `list(specdash.models.data_models.Spectrum)`
+            Spectrum object of type specdash.models.data_models.Spectrum, or list containing those type of objects.
+        is_visible: `bool`
+            `True` if the spectrum is to be shown in the plot, `False` otherwise.
 
         Returns
         -------
@@ -1196,7 +1180,7 @@ class Viewer():
         self._add_trace_to_data(self.app_data, added_traces, do_update_client=False)
 
         # self._set_trace_updates_info(self.app_data, added_trace_names=[s.name for s in _spectrum])
-        self.update_client()
+        self._update_client()
 
     def get_spectrum(self, name):
         """
@@ -1258,7 +1242,7 @@ class Viewer():
             self._add_spectrum_from_file(file_path[i], self.app_data, to_wavelength_unit, to_flux_unit, catalog_name,
                                          display_name[i], do_update_client=False)
 
-        self.update_client()
+        self._update_client()
 
     def add_spectrum_from_id(self, specid, catalog_name, display_name=None, to_wavelength_unit=None, to_flux_unit=None):
         """
@@ -1293,7 +1277,7 @@ class Viewer():
         self._load_from_specid(specid, display_name, to_wavelength_unit, to_flux_unit, self.app_data, catalog_name,
                                do_update_client=False)
 
-        self.update_client()
+        self._update_client()
 
     def get_catalog_names(self):
         """
@@ -1317,7 +1301,7 @@ class Viewer():
 
         """
         self.app_data['traces'][name] = trace
-        self.update_client()
+        self._update_client()
 
     def remove_trace(self, name, also_remove_children=True):
         """
@@ -1363,7 +1347,7 @@ class Viewer():
             traces[_name] = trace
 
         self.app_data['traces'] = traces
-        self.update_client()
+        self._update_client()
 
     def set_axis_units(self, wavelength_unit=WavelengthUnit.ANGSTROM, flux_unit=FluxUnit.F_lambda):
         """
@@ -1378,4 +1362,4 @@ class Viewer():
 
         """
         self._rescale_axis(self.app_data, to_wavelength_unit=wavelength_unit, to_flux_unit=flux_unit)
-        self.update_client()
+        self._update_client()
