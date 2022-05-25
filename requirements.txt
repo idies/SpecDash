@@ -7,7 +7,7 @@ dash-extensions
 dash-html-components
 dash-table
 Flask
-Flask-SocketIO
+Flask-SocketIO>=5
 Flask-Caching
 ipython-genutils
 jupyter-dash
