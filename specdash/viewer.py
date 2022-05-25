@@ -2,7 +2,7 @@ import flask
 from flask_caching import Cache
 from flask_socketio import SocketIO
 from jupyter_dash import JupyterDash
-from jupyter_dash.comms import _send_jupyter_config_comm_request
+from jupyter_dash.comms import _send_jupyter_config_comm_request, _request_jupyter_config
 from specdash import base_logs_directory, external_stylesheets, external_scripts, port, do_log, max_num_traces
 import numpy as np
 from specdash import app_layout, callbacks
@@ -24,6 +24,8 @@ from dash import no_update
 from collections import OrderedDict
 from pathlib import Path
 import os
+
+_send_jupyter_config_comm_request()
 
 process_manager = multiprocessing.Manager()
 
@@ -48,7 +50,6 @@ class Viewer():
 
         if not self.as_website:
             _send_jupyter_config_comm_request()
-            JupyterDash.infer_jupyter_proxy_config()
             assets_ignore = ""
         else:
             assets_ignore = "websocket.js"
@@ -183,7 +184,7 @@ class Viewer():
     def _get_app_layout(self):
         return app_layout.load_app_layout(self=self)
 
-    def show_jupyter_app(self, debug=False, mode='jupyterlab'):
+    def show_jupyter_app(self, debug=False, mode='jupyterlab', port=None):
         """
         Opens the Spectrum Viewer inside Jupyter.
         :param debug: Boolean, defining whether to include debug functionality.
@@ -194,8 +195,11 @@ class Viewer():
         :return:
         """
         if not self.as_website:
+            JupyterDash.infer_jupyter_proxy_config()
             self._initialize_app_data()
-            self.app.run_server(mode=mode, port=self.app_port, debug=debug, dev_tools_ui=True,
+            if port is None:
+                port = self.app_port
+            self.app.run_server(mode=mode, port=port, debug=debug, dev_tools_ui=True,
                                 dev_tools_props_check=True, dev_tools_hot_reload=True,
                                 dev_tools_silence_routes_logging=True)  # dash + jupyterdash
 
