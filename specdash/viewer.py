@@ -49,7 +49,7 @@ class Viewer():
         self.as_website = as_website
 
         if not self.as_website:
-            _send_jupyter_config_comm_request()
+            self._iterate_jupyter_kernel() # fixing JupyterDash
             assets_ignore = ""
         else:
             assets_ignore = "websocket.js"
@@ -73,6 +73,22 @@ class Viewer():
         session_id = str(uuid.uuid4())
         callbacks.load_callbacks(self)
         self._initialize_api_endpoints()
+
+
+    def _iterate_jupyter_kernel(self):
+        import IPython
+        import nest_asyncio
+        import asyncio
+        _send_jupyter_config_comm_request()
+        shell = IPython.get_ipython()
+        kernel = shell.kernel
+        shell.execution_count += 1
+        if asyncio.iscoroutinefunction(kernel.do_one_iteration):
+            kernel_loop = asyncio.get_event_loop()
+            nest_asyncio.apply(kernel_loop)
+            kernel_loop.run_until_complete(kernel.do_one_iteration())
+        else:
+            kernel.do_one_iteration()
 
     def _initialize_api_endpoints(self):
         @self.server.route('/api/health')
