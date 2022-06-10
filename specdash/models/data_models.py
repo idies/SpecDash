@@ -37,7 +37,7 @@ class RedshiftDistribution(Base):
         self.is_visible = is_visible
 
 class Spectrum(Base):
-    def __init__(self,name="", wavelength=[], flux=[], flux_error=[], masks=[], spectral_lines = [],
+    def __init__(self,name="spectrum", wavelength=[], flux=[], flux_error=[], masks=[], spectral_lines = [],
                  mask_bits={}, wavelength_unit=WavelengthUnit.ANGSTROM, flux_unit=FluxUnit.F_lambda,
                  catalog=None, spectrum_type=SpectrumType.OBJECT, redshift=None, color="rgb(0,0,0)", linewidth=1, alpha=1):
 
@@ -65,15 +65,23 @@ class Spectrum(Base):
         self.alpha = alpha
         self.redshift = redshift
 
-        def from_spectrum1d(self, spectrum1d, name, is_visible = True):
-            self.name = name
-            self.redshift = float(spectrum1d.redshift.value)
-            self.flambda = fl.convert_flux([x for x in spectrum1d.flux], [x for x in spectrum1d.wavelength], spectrum1d.flux_unit, FluxUnit.F_lambda, WavelengthUnit.ANGSTROM)
-            self.is_visible = is_visible
+        @classmethod
+        def from_spectrum1d(cls, spectrum1d, name="", wavelength=[], flux=[], flux_error=[], masks=[], spectral_lines = [],
+                 mask_bits={}, wavelength_unit=WavelengthUnit.ANGSTROM, flux_unit=FluxUnit.F_lambda,
+                 catalog=None, spectrum_type=SpectrumType.OBJECT, color="rgb(0,0,0)", linewidth=1, alpha=1):
+            redshift = float(spectrum1d.redshift.value)
+            cls.flambda = fl.convert_flux([x for x in spectrum1d.flux], [x for x in spectrum1d.wavelength], spectrum1d.flux_unit, FluxUnit.F_lambda, WavelengthUnit.ANGSTROM)
+            wavelength = [x for x in wavelength]
+            flux = [x for x in spectrum1d.flux]
+            flux_error = [x for x in flux_error]
+            return cls(name, wavelength, flux, flux_error, masks, spectral_lines,
+                 mask_bits, wavelength_unit, flux_unit,
+                 catalog, spectrum_type, redshift, color, linewidth, alpha)
+
 
 
 class Trace(Spectrum):
-    def __init__(self,name="", wavelength=[], flux=[], flux_error=[], masks={}, spectral_lines = [],
+    def __init__(self,name="spectrum", wavelength=[], flux=[], flux_error=[], masks={}, spectral_lines = [],
                  mask_bits={}, wavelength_unit=WavelengthUnit.ANGSTROM, flux_unit=FluxUnit.F_lambda,
                  catalog=None, spectrum_type=SpectrumType.OBJECT, redshift=None, color="rgb(0,0,0)", linewidth=1, alpha=1,
                  inner_type_rank=1, flambda=[], flambda_error=[], is_visible=True, show_error=False, ancestors=[], photometry={}, metadata={}, wavelength_boundaries=[]):

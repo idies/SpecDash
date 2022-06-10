@@ -1,14 +1,14 @@
 from specdash import max_num_traces
 from specdash.models.data_models import WavelengthUnit, FluxUnit
 from specdash import catalog_names, default_wavelength_unit, default_flux_unit
-import dash_core_components as dcc
+from dash import dcc
 import dash_daq as daq
 from specdash.layout.tables import get_dash_table
 from dash.dependencies import Input, Output
 import dash_bootstrap_components as dbc
-import dash_html_components as html
-import dash_table
-from dash_extensions import Download
+from dash import html
+from dash import dash_table
+from dash.dcc import Download
 from textwrap import dedent as d
 from specdash.spectral_lines import spectral_lines, sky_lines, artificial_lines
 import json
@@ -277,7 +277,7 @@ def get_spectrum_page_layout(self):
                             persisted_props=["value"],
                         ),
                         html.Hr(),
-                        html.H6(["Toggle:"]),
+                        html.H6(["Display:"]),
                         dbc.Button('model', color="primary", outline=True,
                                    className="btn btn-sm m-1 specbutton",
                                    id='show_model_button'),
@@ -300,7 +300,6 @@ def get_spectrum_page_layout(self):
                                    id='show_zdist_button'),
                         html.Hr(),
                         html.Br(),
-                        html.P("Help: mtaghiza [at] jhu.edu"),
                         html.Br(),
                         # html.Div(dcc.Input(style={'display':'none'}, id='input-box', type='text', value="")),
                         html.Button('Submit', id='button', style={'display': 'none'}),
@@ -687,10 +686,10 @@ def get_spectrum_page_layout(self):
                                                                id='model_fit_button'),
                                                     html.Br(),
                                                     dcc.Checklist(
-                                                        id="add_fit_substracted_trace_checklist",
+                                                        id="add_fit_subtracted_trace_checklist",
                                                         options=[
                                                             {'label': 'add fit-subtracted trace',
-                                                             'value': 'add_fit_substracted_trace'},
+                                                             'value': 'add_fit_subtracted_trace'},
                                                         ],
                                                         value=[],  # ['add_smoothed_as_trace']
                                                         labelStyle={'display': 'inline-block'},
@@ -746,7 +745,7 @@ def get_spectrum_page_layout(self):
                                                        className="btn btn-sm m-1 specbutton", id='trace_smooth_button'),
                                             dbc.Button('Subtract smoothed', color="primary", outline=True,
                                                        className="btn btn-sm m-1 specbutton",
-                                                       id='trace_smooth_substract_button'),
+                                                       id='trace_smooth_subtract_button'),
                                             dbc.Button('Reset', color="primary", outline=True,
                                                        className="btn btn-sm m-1 specbutton",
                                                        id='trace_unsmooth_button'),
@@ -903,9 +902,45 @@ def get_documentation_page_layout(self):
     layout =  html.Div(children=[
         html.Br(),
         dbc.Container(children=[
-            html.H5("Currently under development."),
-            html.H6("Contact: Manuchehr Taghizadeh-Popp, mtaghiza [at] jhu.edu"),
-            #html.Iframe(src="https://docs.astropy.org/en/latest/", style={'width':"100%",'height':"95vh"})
+            html.H5(html.B("SpecDash")),
+            html.P("""
+                    SpecDash is an application for displaying and analyzing one-dimensional astronomical spectra, 
+                    available both as an interactive or programmable Jupyter notebook widget, as well as a stand-alone 
+                    website. Users can load and compare multiple spectra at the same time, overlay error bars, 
+                    spectral masks and lines, and show individual exposure frames, sky background and model spectra. 
+                    For modeling, spectral regions can be interactively selected for fitting the continuum or spectral 
+                    lines with several predefined models, and spectral smoothing can be performed with with several 
+                    kernels. For reproducibility, all spectra and models can be downloaded, shared, and then 
+                    uploaded again by other users.            
+            """),
+            html.Br(),
+            html.P(children=[
+                "Contact:",
+                html.Span("Manuchehr Taghizadeh-Popp, Johns Hopkins University. mtaghiza[at] jhu.edu",  style={"marginLeft": "1rem"})
+                ]),
+
+            # <a href="https://doi.org/10.5281/zenodo.5083750"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.5083750.svg" alt="DOI"></a>
+            html.P(children=[
+                "Citation:",
+                html.A(target="_blank", href="https://doi.org/10.5281/zenodo.5083750", style={"marginLeft": "1rem"},
+                       children=html.Img(src="https://zenodo.org/badge/DOI/10.5281/zenodo.5083750.svg", alt="https://doi.org/10.5281/zenodo.5083750")),
+            ]),
+            html.P(children=[
+                "Repository:",
+                html.A(target="_blank", href="http://github.com/idies/SpecDash", style={"marginLeft": "1rem"},
+                       children="http://github.com/idies/SpecDash")
+            ]),
+            html.P(children=[
+                "Web interface:",
+                html.A(target="_blank", href="http://specdash.idies.jhu.edu/",
+                       style={"marginLeft": "1rem"},
+                       children="http://specdash.idies.jhu.edu")
+            ]),
+            html.P(children=[
+                "Documentation:",
+                html.A(target="_blank", href="http://specdash.idies.jhu.edu/static/docs/index.html", style={"marginLeft": "1rem"},
+                       children="API")
+            ]),
         ])
     ])
     return layout
