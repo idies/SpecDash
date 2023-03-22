@@ -295,7 +295,7 @@ def load_callbacks(self): # self is passed as the Viewer class
                         Input('trace_smooth_button', 'n_clicks'),
                         Input('trace_smooth_subtract_button', 'n_clicks'),
                         Input('trace_unsmooth_button', 'n_clicks'),
-                        Input('analize_line_selection_button', 'n_clicks'),
+                        Input('analyze_line_selection_button', 'n_clicks'),
                         Input('wavelength-unit', 'value'),
                         Input('flux-unit', 'value'),
                         Input('wavelength_binning_button', 'n_clicks'),
@@ -333,7 +333,7 @@ def load_callbacks(self): # self is passed as the Viewer class
             state_list = state_list + [State('store', 'data')]
 
         def data_callback(pull_trigger_value,n_clicks_remove_trace_button, list_of_contents, n_clicks_smooth_button,
-                          n_clicks_smooth_subtract_button, nclicks_analize_line_selection_button,
+                          n_clicks_smooth_subtract_button, nclicks_analyze_line_selection_button,
                           n_clicks_unsmooth_button, wavelength_unit, flux_unit, nclicks_wavelength_binning_button,
                           n_clicks_model_fit_button, show_model_button, show_sky_button, show_visits_button,
                           save_trace_changes_button,
@@ -390,7 +390,7 @@ def load_callbacks(self): # self is passed as the Viewer class
                         for traces in new_data_list:
                             for trace in traces:
                                 self._set_color_for_new_trace(trace, data_dict)
-                                self._add_trace_to_data(data_dict, trace.get('name'), trace, do_update_client=False)
+                                self._add_trace_to_data(data_dict, trace, do_update_client=False)
 
                         self._set_axis_units(data_dict, wavelength_unit, flux_unit)
 
@@ -424,7 +424,7 @@ def load_callbacks(self): # self is passed as the Viewer class
                     self._unsmooth_trace(dropdown_trace_names, data_dict, do_update_client=False)
                     _data_dict = data_dict
 
-                elif task_name == "analize_line_selection_button":
+                elif task_name == "analyze_line_selection_button":
                     if selected_data is not None:
                         self._get_line_analysis(dropdown_trace_names, data_dict, selected_data,
                                                 dropdown_for_region_values, as_new_trace=False, do_update_client=False)

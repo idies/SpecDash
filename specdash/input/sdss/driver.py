@@ -243,48 +243,30 @@ class FitsDataDriver(DataDriver):
     @classmethod
     def get_data_from_specid(cls, specid, trace_name=None):
 
-        if specid.startswith("spec") or specid.endswith(".fits"):
-            specid = specid if specid.endswith(".fits") else specid + ".fits"
+        catalog_name = cls.get_catalog_name()
+        url = api_urls[
+                  catalog_name] + f"?cmd=select+dbo.fGetUrlFitsSpectrum({specid})+as+url&format=json&TaskName=specdash"
+        response = requests.get(url, timeout=10)
+        if response.status_code < 200 & response.status_code >= 300:
+            raise Exception("Unable to query input spectrum data")
 
-            base_dir = base_data_directories[cls.get_catalog_name()]
-            run2d_subdirs = [d for d in os.listdir(base_dir) if os.path.isdir(base_dir + "/" + d) is True]
-            for run2d_subdir in run2d_subdirs:
-                plate = specid.split("-")[1]
-                path_to_spec_file = base_dir + run2d_subdir + "/" + plate + "/" + specid
-                if not cls.is_safe_path(path_to_spec_file):
-                    raise Exception("Invalid specid or file " + specid)
-                if os.path.isfile(path_to_spec_file):
-                    break
+        dat = json.loads(response.content)
+        if type(dat) == dict or len(dat[0]['Rows']) == 0:
+            raise Exception("Unable to find " + catalog_name + " spectrum identified by " + str(specid))
 
-        else:
+        fits_url = dat[0]['Rows'][0]['url']
 
-            #specid = specid if specid.endswith(".fits") else specid + ".fits"
-            catalog_name = cls.get_catalog_name()
-            url = api_urls[catalog_name] + "?cmd=select+top+1+run2d,plate,mjd,fiberid+from+specobjall+where+specobjid={}&format=json&TaskName=specdash".format(specid)
-            response = requests.get(url, timeout=10)
-            if response.status_code < 200 & response.status_code >= 300:
-                raise Exception("Unable to query input spectrum data")
-
-            dat = json.loads(response.content)
-            if type(dat) == dict or len(dat[0]['Rows']) == 0:
-                raise Exception("Unable to find " + catalog_name + " spectrum identified by " + str(specid) )
-
-            mjd = dat[0]['Rows'][0]['mjd']
-            plate = dat[0]['Rows'][0]['plate']
-            fiberid = dat[0]['Rows'][0]['fiberid']
-            run2d = dat[0]['Rows'][0]['run2d']
-
-            #path_to_spec_file = base_data_directories[cls.get_catalog_name()] + specid
-            spec_file_name = "spec-{:04d}-{}-{:04d}.fits".format(plate,mjd,fiberid)
-            path_to_spec_file = base_data_directories[cls.get_catalog_name()] + "{}/{:04d}/{}".format(run2d,plate,spec_file_name)
-
+        base_dir = base_data_directories[cls.get_catalog_name()]
+        path_to_spec_file = base_dir + "spectro" + fits_url.split("spectro")[-1]
 
         if not os.path.isfile(path_to_spec_file):
-            raise Exception("Spectrum " + specid + " not found on file system.")
-
+            path_to_spec_file = fits_url
 
         trace_name = trace_name if trace_name is not None else specid.replace(".fits", "")
+        try:
+            hdu_list = astropy.io.fits.open(path_to_spec_file)
+            trace_list = cls.get_trace_list_from_fits(trace_name, hdulist=hdu_list, file_object=None)
+            return trace_list, None
+        except Exception as e:
+            raise Exception("Could not retrieve spectrum '" + specid + "' from file system or from the SAS.")
 
-        hdulist = astropy.io.fits.open(path_to_spec_file)
-        trace_list = cls.get_trace_list_from_fits(trace_name, hdulist=hdulist, file_object=None)
-        return (trace_list, None)

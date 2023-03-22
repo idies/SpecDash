@@ -566,9 +566,9 @@ def get_spectrum_page_layout(self):
                                                             style={'minWidth':"25rem", "maxWidth":"30rem",'float':'left'},
                                                         ),
                                                         html.Br(),
-                                                        dbc.Button("Analize Line", color="primary", outline=True,
+                                                        dbc.Button("Analyze Line", color="primary", outline=True,
                                                                    className="btn btn-md m-1 specbutton",
-                                                                   id="analize_line_selection_button",
+                                                                   id="analyze_line_selection_button",
                                                                    style={}),
 
 
